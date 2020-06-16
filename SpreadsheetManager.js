@@ -28,8 +28,7 @@ class SpreadsheetManager{
     * @return array of data from sheet
   */
   getSheetValues(){
-    const { sheet } = this;
-    const values = sheet.getDataRange().getValues();
+    const values = this.sheet.getDataRange().getValues();
     return values;
   }
   /**
