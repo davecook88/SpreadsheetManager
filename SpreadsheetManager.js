@@ -1,3 +1,8 @@
+/**
+    Coded by Dave Cook
+    www.davecookcodes.com
+*/
+
 class SpreadsheetManager{
   constructor(wb, sheetName) {
     this.wb = wb;
