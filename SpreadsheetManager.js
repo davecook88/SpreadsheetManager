@@ -73,6 +73,7 @@ class SpreadsheetManager{
   */
   updateAllValues() {
     const { values, sheet } = this;
+    sheet.getRange(2,1,values.length,values[0].length).setValues(values);
   }
   
 }
