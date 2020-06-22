@@ -72,7 +72,7 @@ class SpreadsheetManager{
     * @desc updates sheet with values from this.values;
   */
   updateAllValues() {
-    sheet.getRange(1,1,values.length,values[0].length).setValues(values);
+    this.sheet.getRange(1,1,values.length,values[0].length).setValues(values);
   }
   
 }
