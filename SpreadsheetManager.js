@@ -18,7 +18,8 @@ class SpreadsheetManager{
   getRowHeaders(topRow){
     const obj = {};
     for (let c = 0; c < topRow.length; c++){
-      const cell = topRow[c];
+      //removes line breaks and multiple spaces
+      const cell = topRow[c].replace(/(\r\n|\n|\r)/gm," ").replace(/\s\s+/g, ' ');
       obj[cell] = c;
     }
     return obj;
@@ -74,6 +75,7 @@ class SpreadsheetManager{
   updateAllValues() {
     const { values, sheet } = this;
     sheet.getRange(2,1,values.length,values[0].length).setValues(values);
+    SpreadsheetApp.flush();
   }
   
 }
