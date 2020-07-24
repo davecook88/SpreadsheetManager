@@ -10,6 +10,54 @@ class SpreadsheetManager{
     this.values = this.getSheetValues();
     this.rowHeaders = this.getRowHeaders(this.values[0]);
   }
+
+  /**
+   *
+   *
+   * @param string[] row
+   * @returns object of values with column headers as keys
+   * @memberof SpreadsheetManager
+   */
+  createObjectFromRow(row) {
+    const { rowHeaders } = this;
+    const obj = {};
+    for (let key in rowHeaders){
+      try {
+        obj[key] = row[rowHeaders[key]];
+      } catch(err){
+        Logger.log(err);
+      }
+        
+    }
+    return obj;
+  }
+  
+  /**
+   *
+   *
+   * @memberof SpreadsheetManager
+   */
+  clearSheetAndPasteValues(){
+    const { sheet, values } = this;
+    sheet.getDataRange().clearContent();
+    sheet.getRange(1,1,values.length,values[0].length).setValues(values);
+    SpreadsheetApp.flush();
+  }
+
+  
+  
+  /**
+   *
+   * @desc loops through all rows
+   * @param {*} callback
+   * @memberof SpreadsheetManager
+   */
+  forEachRow(callback) {
+    for (let i = 1; i < this.values.length; i++) {
+      const row = new _Row(this.values[i], this.rowHeaders);
+      callback(row, i);
+    }
+  }
   /**
     * @desc creates an array to reference column number by header name
     * @param string[] topRow
@@ -74,8 +122,30 @@ class SpreadsheetManager{
   */
   updateAllValues() {
     const { values, sheet } = this;
-    sheet.getRange(2,1,values.length,values[0].length).setValues(values);
+    sheet.getRange(1,1,values.length,values[0].length).setValues(values);
     SpreadsheetApp.flush();
   }
   
+}
+
+class _Row {
+  /**
+   *Creates an instance of _Row.
+   * @param string[] row
+   * @param object headers
+   * @memberof _Row
+   */
+  constructor(row, headers) {
+    this.values = row;
+    this.headers = headers
+  }
+
+  col(headerName) {
+    const colIndex = this.headers[headerName];
+    try{
+      return this.values[colIndex];
+    } catch(err) {
+      Logger.log(`${headerName} isn't a column in ${row.toString()}`, err);
+    }
+  }
 }
