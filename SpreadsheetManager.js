@@ -90,10 +90,11 @@ class SpreadsheetManager {
     for (let c = 0; c < topRow.length; c++) {
       //removes line breaks and multiple spaces
       if (topRow[c]) {
-        const cell = topRow[c]
+        const cell = typeof topRow[c] === 'string' ? topRow[c] : topRow[c].toString();
+        const cellValue = cell
           .replace(/(\r\n|\n|\r)/gm, " ")
           .replace(/\s\s+/g, " ");
-        obj[cell] = c;
+        obj[cellValue] = c;
       }
     }
     return obj;
