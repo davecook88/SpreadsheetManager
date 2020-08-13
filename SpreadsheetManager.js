@@ -44,6 +44,17 @@ class SpreadsheetManager {
     }
     return obj;
   }
+  clearSheet(startColumn, endColumn) {
+    const { sheet } = this;
+    if (!startColumn && !endColumn) {
+      sheet.getDataRange().clearContent();
+    } else {
+      const lastRow = sheet.getLastRow();
+      sheet
+        .getRange(2, startColumn, lastRow, endColumn - startColumn)
+        .clearContent();
+    }
+  }
 
   /**
    *
@@ -78,10 +89,12 @@ class SpreadsheetManager {
     const obj = {};
     for (let c = 0; c < topRow.length; c++) {
       //removes line breaks and multiple spaces
-      const cell = topRow[c]
-        .replace(/(\r\n|\n|\r)/gm, " ")
-        .replace(/\s\s+/g, " ");
-      obj[cell] = c;
+      if (topRow[c]) {
+        const cell = topRow[c]
+          .replace(/(\r\n|\n|\r)/gm, " ")
+          .replace(/\s\s+/g, " ");
+        obj[cell] = c;
+      }
     }
     return obj;
   }
@@ -157,7 +170,7 @@ class _Row {
     this.headers = headers;
   }
 
-  createObject(){
+  createObject() {
     const { values, headers } = this;
     const obj = {};
     for (let header in headers) {
