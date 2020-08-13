@@ -167,9 +167,10 @@ class _Row {
     return obj;
   }
 
-  col(headerName) {
+  col(headerName, value) {
     const colIndex = this.headers[headerName];
     try {
+      if (value) this.values[colIndex] = value;
       return this.values[colIndex];
     } catch (err) {
       Logger.log(`${headerName} isn't a column in ${row.toString()}`, err);
