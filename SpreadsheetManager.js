@@ -19,7 +19,7 @@ class SpreadsheetManager {
    */
   addNewRowsFromObjects(objects = []){
     const { rowHeaders } = this;
-    return objects.map(obj => {
+    const newRows =  objects.map(obj => {
       const newRow = [];
       for (let header in rowHeaders){
         const colIndex = rowHeaders[header];
@@ -27,6 +27,8 @@ class SpreadsheetManager {
       }
       return newRow;
     })
+
+    this.addNewRows(newRows)
   }
 
   /**
