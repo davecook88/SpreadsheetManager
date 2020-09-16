@@ -13,8 +13,23 @@ class SpreadsheetManager {
   }
 
   /**
-   *
-   *
+   * @param Object[] Array of object representing data to be entered into each row
+   * each attribute of each object must be equivalent to an attribute in rowheaders
+   * @memberof SpreadsheetManager
+   */
+  addNewRowsFromObjects(objects = []){
+    const { rowHeaders } = this;
+    return objects.map(obj => {
+      const newRow = [];
+      for (let header in rowHeaders){
+        const colIndex = rowHeaders[header];
+        newRow[colIndex] = obj[header] || '';
+      }
+      return newRow;
+    })
+  }
+
+  /**
    * @param variable[][] rows
    * @memberof SpreadsheetManager
    */
