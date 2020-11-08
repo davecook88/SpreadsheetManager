@@ -1,5 +1,6 @@
 **I am available for freelance work or full time opportunities**
-davecookcodes.com
+
+🌎 davecookcodes.com
 Upwork: https://www.upwork.com/freelancers/~0141d415013a6613d0
 
 # Spreadsheet Manager
