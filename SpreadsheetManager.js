@@ -13,6 +13,7 @@ class SpreadsheetManager {
     this.values = this.getSheetValues(headerRow);
     this.rowHeaders = this.getRowHeaders(this.values[0]);
   }
+  
 
   /**
    *
@@ -29,6 +30,24 @@ class SpreadsheetManager {
     const range = sheet.getRange(lastRow + 1, 1, rows.length, rows[0].length);
     range.setValues(rows);
   }
+
+  /**
+   * @param Object[] Array of object representing data to be entered into each row
+   * each attribute of each object must be equivalent to an attribute in rowheaders
+   * @memberof SpreadsheetManager
+   */
+  addNewRowsFromObjects(objects = []){
+    const { rowHeaders } = this;
+    const newRows =  objects.map(obj => {
+      const newRow = [];
+      for (let header in rowHeaders){
+        const colIndex = rowHeaders[header];
+        newRow[colIndex] = obj[header] || '';
+      }
+      return newRow;
+    })
+
+    t
 
   /**
    *
