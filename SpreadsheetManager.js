@@ -4,38 +4,26 @@
 */
 
 class SpreadsheetManager {
-  constructor(wb, sheetName) {
+  constructor(wb, sheetName, options) {
+    const headerRow = options ? options.headerRow : 1;
+    this.headerRow = headerRow;
     this.wb = wb;
     this.sheet = this.wb.getSheetByName(sheetName);
     if (!this.sheet) return;
-    this.values = this.getSheetValues();
+    this.values = this.getSheetValues(headerRow);
     this.rowHeaders = this.getRowHeaders(this.values[0]);
   }
 
   /**
-   * @param Object[] Array of object representing data to be entered into each row
-   * each attribute of each object must be equivalent to an attribute in rowheaders
-   * @memberof SpreadsheetManager
-   */
-  addNewRowsFromObjects(objects = []){
-    const { rowHeaders } = this;
-    const newRows =  objects.map(obj => {
-      const newRow = [];
-      for (let header in rowHeaders){
-        const colIndex = rowHeaders[header];
-        newRow[colIndex] = obj[header] || '';
-      }
-      return newRow;
-    })
-
-    this.addNewRows(newRows)
-  }
-
-  /**
-   * @param variable[][] rows
+   *
+   *
+   * @param variable[][] or variable[] rows
    * @memberof SpreadsheetManager
    */
   addNewRows(rows) {
+    if (!typeof rows[0] === "object") {
+      rows = [rows];
+    }
     const { sheet } = this;
     const lastRow = sheet.getLastRow();
     const range = sheet.getRange(lastRow + 1, 1, rows.length, rows[0].length);
@@ -60,17 +48,6 @@ class SpreadsheetManager {
       }
     }
     return obj;
-  }
-  clearSheet(startColumn, endColumn) {
-    const { sheet } = this;
-    if (!startColumn && !endColumn) {
-      sheet.getDataRange().clearContent();
-    } else {
-      const lastRow = sheet.getLastRow();
-      sheet
-        .getRange(2, startColumn, lastRow, endColumn - startColumn)
-        .clearContent();
-    }
   }
 
   /**
@@ -98,6 +75,19 @@ class SpreadsheetManager {
     }
   }
   /**
+   *
+   *
+   * @returns array
+   * @memberof SpreadsheetManager
+   */
+  getLastRow() {
+    const { values } = this;
+    const lastRowIndex = values.length - 1;
+    if (lastRowIndex >= 0) {
+      return values[lastRowIndex];
+    }
+  }
+  /**
    * @desc creates an array to reference column number by header name
    * @param string[] topRow
    * @return obj - {header:int,header:int,...}
@@ -106,13 +96,10 @@ class SpreadsheetManager {
     const obj = {};
     for (let c = 0; c < topRow.length; c++) {
       //removes line breaks and multiple spaces
-      if (topRow[c]) {
-        const cell = typeof topRow[c] === 'string' ? topRow[c] : topRow[c].toString();
-        const cellValue = cell
-          .replace(/(\r\n|\n|\r)/gm, " ")
-          .replace(/\s\s+/g, " ");
-        obj[cellValue] = c;
-      }
+      const cell = topRow[c]
+        .replace(/(\r\n|\n|\r)/gm, " ")
+        .replace(/\s\s+/g, " ");
+      obj[cell] = c;
     }
     return obj;
   }
@@ -121,7 +108,11 @@ class SpreadsheetManager {
    * @return array of data from sheet
    */
   getSheetValues() {
-    const values = this.sheet.getDataRange().getValues();
+    const lastRow = this.sheet.getLastRow() + 1;
+    const lastColumn = this.sheet.getLastColumn();
+    const values = this.sheet
+      .getRange(this.headerRow, 1, lastRow - this.headerRow, lastColumn)
+      .getValues();
     return values;
   }
   /**
@@ -198,13 +189,14 @@ class _Row {
     return obj;
   }
 
-  col(headerName, value) {
+  col(headerName) {
     const colIndex = this.headers[headerName];
     try {
-      if (value) this.values[colIndex] = value;
       return this.values[colIndex];
     } catch (err) {
       Logger.log(`${headerName} isn't a column in ${row.toString()}`, err);
     }
   }
 }
+
+// module.exports = SpreadsheetManager;
