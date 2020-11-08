@@ -1,6 +1,7 @@
 **I am available for freelance work or full time opportunities**
 
-🌎 davecookcodes.com
+🌎 [davecookcodes.com](https://davecookcodes.com)
+
 Upwork: https://www.upwork.com/freelancers/~0141d415013a6613d0
 
 # Spreadsheet Manager
@@ -94,7 +95,7 @@ To just update a single column, use `pasteValuesToColumn`.
     
     // Changing ids from 1,2,3 to 10001, 10002, 10003
     const newIds = ids_flat_array.map(oldId => [oldId + 10000]);
-    const newIdColumn = managedSpreadsheet.getValuesInColumn('id', newIds)
+    const newIdColumn = managedSpreadsheet.pasteValuesToColumn('id', newIds)
     
 # I hope this helps! 😀
 
