@@ -13,7 +13,7 @@ class SpreadsheetManager {
     this.values = this.getSheetValues(headerRow);
     this.rowHeaders = this.getRowHeaders(this.values[0]);
   }
-  
+
 
   /**
    *
@@ -25,7 +25,9 @@ class SpreadsheetManager {
     if (!typeof rows[0] === "object") {
       rows = [rows];
     }
-    const { sheet } = this;
+    const {
+      sheet
+    } = this;
     const lastRow = sheet.getLastRow();
     const range = sheet.getRange(lastRow + 1, 1, rows.length, rows[0].length);
     range.setValues(rows);
@@ -36,18 +38,19 @@ class SpreadsheetManager {
    * each attribute of each object must be equivalent to an attribute in rowheaders
    * @memberof SpreadsheetManager
    */
-  addNewRowsFromObjects(objects = []){
-    const { rowHeaders } = this;
-    const newRows =  objects.map(obj => {
+  addNewRowsFromObjects(objects = []) {
+    const {
+      rowHeaders
+    } = this;
+    const newRows = objects.map(obj => {
       const newRow = [];
-      for (let header in rowHeaders){
+      for (let header in rowHeaders) {
         const colIndex = rowHeaders[header];
         newRow[colIndex] = obj[header] || '';
       }
       return newRow;
     })
-
-    t
+  }
 
   /**
    *
@@ -57,7 +60,9 @@ class SpreadsheetManager {
    * @memberof SpreadsheetManager
    */
   createObjectFromRow(row) {
-    const { rowHeaders } = this;
+    const {
+      rowHeaders
+    } = this;
     const obj = {};
     for (let key in rowHeaders) {
       try {
@@ -75,7 +80,10 @@ class SpreadsheetManager {
    * @memberof SpreadsheetManager
    */
   clearSheetAndPasteValues() {
-    const { sheet, values } = this;
+    const {
+      sheet,
+      values
+    } = this;
     sheet.getDataRange().clearContent();
     sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
     SpreadsheetApp.flush();
@@ -100,7 +108,9 @@ class SpreadsheetManager {
    * @memberof SpreadsheetManager
    */
   getLastRow() {
-    const { values } = this;
+    const {
+      values
+    } = this;
     const lastRowIndex = values.length - 1;
     if (lastRowIndex >= 0) {
       return values[lastRowIndex];
@@ -141,7 +151,10 @@ class SpreadsheetManager {
    * @return array of data from sheet
    */
   getValuesInColumn(headerName, valuesOnly = false) {
-    const { values, rowHeaders } = this;
+    const {
+      values,
+      rowHeaders
+    } = this;
     if (rowHeaders.hasOwnProperty(headerName)) {
       const columnIndex = rowHeaders[headerName];
 
@@ -159,7 +172,10 @@ class SpreadsheetManager {
    * @param string  headerName
    */
   pasteValuesToColumn(headerName, columnArray) {
-    const { sheet, rowHeaders } = this;
+    const {
+      sheet,
+      rowHeaders
+    } = this;
     if (rowHeaders.hasOwnProperty(headerName)) {
       const columnIndex = rowHeaders[headerName];
 
@@ -180,7 +196,10 @@ class SpreadsheetManager {
    * @desc updates sheet with values from this.values;
    */
   updateAllValues() {
-    const { values, sheet } = this;
+    const {
+      values,
+      sheet
+    } = this;
     sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
     SpreadsheetApp.flush();
   }
@@ -199,7 +218,10 @@ class _Row {
   }
 
   createObject() {
-    const { values, headers } = this;
+    const {
+      values,
+      headers
+    } = this;
     const obj = {};
     for (let header in headers) {
       const index = headers[header];
