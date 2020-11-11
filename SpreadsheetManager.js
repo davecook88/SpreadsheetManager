@@ -50,6 +50,7 @@ class SpreadsheetManager {
       }
       return newRow;
     })
+    addNewRows(newRows)
   }
 
   /**
