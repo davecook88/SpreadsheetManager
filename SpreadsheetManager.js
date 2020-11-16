@@ -74,6 +74,15 @@ class SpreadsheetManager {
     }
     return obj;
   }
+    
+  clearSheet() {
+    const {
+      sheet,
+      headerRow
+    } = this;
+    sheet.getRange(headerRow + 1, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent();
+    SpreadsheetApp.flush();
+  }
 
   /**
    *
