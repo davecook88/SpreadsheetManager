@@ -102,13 +102,23 @@ class SpreadsheetManager {
   /**
    *
    * @desc loops through all rows
-   * @param {*} callback
+   * @param {function} callback
+   * @param {object} options can specify 'bottomUp' as true to reverse direction of loop
    * @memberof SpreadsheetManager
    */
-  forEachRow(callback) {
-    for (let i = 1; i < this.values.length; i++) {
-      const row = new _Row(this.values[i], this.rowHeaders);
-      callback(row, i);
+  forEachRow(callback, options) {
+    if (options.bottomUp) {
+      for (let i = this.values.length - 1; i > 0; i--) {
+        const row = new _Row(this.values[i], this.rowHeaders);
+        const val = callback(row, i);
+        if (val) return val;
+      }
+    } else {
+      for (let i = 1; i < this.values.length; i++) {
+        const row = new _Row(this.values[i], this.rowHeaders);
+        const val = callback(row, i);
+        if (val) return val;
+      }
     }
   }
   /**
