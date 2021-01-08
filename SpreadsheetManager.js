@@ -106,7 +106,7 @@ class SpreadsheetManager {
    * @param {object} options can specify 'bottomUp' as true to reverse direction of loop
    * @memberof SpreadsheetManager
    */
-  forEachRow(callback, options) {
+  forEachRow(callback, options = {}) {
     if (options.bottomUp) {
       for (let i = this.values.length - 1; i > 0; i--) {
         const row = new _Row(this.values[i], this.rowHeaders);
