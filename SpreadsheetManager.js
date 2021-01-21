@@ -263,6 +263,16 @@ class _Row {
       Logger.log(`${headerName} isn't a column in ${row.toString()}`, err);
     }
   }
+    
+  populate(obj) {
+    const { headers } = this;
+    for (let header in headers) {
+      if (obj[header]) {
+        const index = headers[header];
+        this.values[index] = obj[header];
+      }
+    }
+  }
 }
 
 // module.exports = SpreadsheetManager;
