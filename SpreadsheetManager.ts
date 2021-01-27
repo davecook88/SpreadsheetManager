@@ -8,7 +8,7 @@ namespace SpreadsheetManagerTypes {
     headerRow: number;
   }
   export interface RowHeaders {
-    [key:string]:number
+    [key: string]: number;
   }
 }
 
@@ -27,12 +27,12 @@ class SpreadsheetManager {
     sheetName: string,
     options?: SpreadsheetManagerTypes.Options
   ) {
-    const headerRow : number = options ? options.headerRow : 1;
+    const headerRow: number = options ? options.headerRow : 1;
     this.headerRow = headerRow;
     this.wb = wb;
     this.sheet = this.wb.getSheetByName(sheetName);
     if (!this.sheet) return;
-    this.values  = this.getSheetValues();
+    this.values = this.getSheetValues();
     this.rowHeaders = this.getRowHeaders(this.values[0]);
   }
 
@@ -42,9 +42,9 @@ class SpreadsheetManager {
    * @param variable[][] or variable[] rows
    * @memberof SpreadsheetManager
    */
-  addNewRows(rows:Array<string | number | Date>[]) {
+  addNewRows(rows: Array<string | number | Date>[]) {
     const { sheet } = this;
-    if (!sheet) return 
+    if (!sheet) return;
     const lastRow = sheet.getLastRow();
     const range = sheet.getRange(lastRow + 1, 1, rows.length, rows[0].length);
     range.setValues(rows);
@@ -55,16 +55,18 @@ class SpreadsheetManager {
    * each attribute of each object must be equivalent to an attribute in rowheaders
    * @memberof SpreadsheetManager
    */
-  addNewRowsFromObjects(objects = []) {
+  addNewRowsFromObjects(objects: { [key: string]: any }) {
     const { rowHeaders } = this;
-    const newRows = objects.map((obj) => {
-      const newRow:Array<string | number | Date> = [];
-      for (let header in rowHeaders) {
-        const colIndex:number = rowHeaders[header];
-        newRow[colIndex] = obj[header] || "";
+    const newRows = objects.map(
+      (obj: { [key: string]: string | number | Date }) => {
+        const newRow: Array<string | number | Date> = [];
+        for (let header in rowHeaders) {
+          const colIndex: number = rowHeaders[header];
+          newRow[colIndex] = obj[header] || "";
+        }
+        return newRow;
       }
-      return newRow;
-    });
+    );
     this.addNewRows(newRows);
   }
 
@@ -75,9 +77,9 @@ class SpreadsheetManager {
    * @returns object of values with column headers as keys
    * @memberof SpreadsheetManager
    */
-  createObjectFromRow(row:_Row) {
+  createObjectFromRow(row: _Row) {
     const { rowHeaders } = this;
-    const obj : {[key:string]: string | number | Date | undefined}= {};
+    const obj: { [key: string]: string | number | Date | undefined } = {};
     for (let key in rowHeaders) {
       try {
         obj[key] = row.col(key);
@@ -88,8 +90,8 @@ class SpreadsheetManager {
     return obj;
   }
 
-  clearSheet() : void {
-    if (! this.sheet) return
+  clearSheet(): void {
+    if (!this.sheet) return;
     const { sheet, headerRow } = this;
     sheet
       .getRange(headerRow + 1, 1, sheet.getLastRow(), sheet.getLastColumn())
@@ -103,7 +105,7 @@ class SpreadsheetManager {
    * @memberof SpreadsheetManager
    */
   clearSheetAndPasteValues() {
-    if (!this.sheet) return
+    if (!this.sheet) return;
     const { sheet, values } = this;
     sheet.getDataRange().clearContent();
     sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
@@ -117,7 +119,7 @@ class SpreadsheetManager {
    * @param {object} options can specify 'bottomUp' as true to reverse direction of loop
    * @memberof SpreadsheetManager
    */
-  forEachRow(callback:Function, options?: {bottomUp?:boolean} ) {
+  forEachRow(callback: Function, options?: { bottomUp?: boolean }) {
     if (options?.bottomUp) {
       for (let i = this.values.length - 1; i > 0; i--) {
         const row = new _Row(this.values[i], this.rowHeaders);
@@ -150,14 +152,16 @@ class SpreadsheetManager {
    * @param string[] topRow
    * @return obj - {header:int,header:int,...}
    */
-  getRowHeaders(topRow : Array<string | number | Date>) : SpreadsheetManagerTypes.RowHeaders {
-    const obj  : SpreadsheetManagerTypes.RowHeaders= {};
+  getRowHeaders(
+    topRow: Array<string | number | Date>
+  ): SpreadsheetManagerTypes.RowHeaders {
+    const obj: SpreadsheetManagerTypes.RowHeaders = {};
     for (let c = 0; c < topRow.length; c++) {
       //removes line breaks and multiple spaces
-      const cell : string = String(topRow[c])
+      const cell: string = String(topRow[c])
         .replace(/(\r\n|\n|\r)/gm, " ")
         .replace(/\s\s+/g, " ");
-      obj[cell] = c
+      obj[cell] = c;
     }
     return obj;
   }
@@ -165,11 +169,11 @@ class SpreadsheetManager {
    * @desc sets values attribute for object
    * @return array of data from sheet
    */
-  getSheetValues() : Array<string | number | Date>[] {
-    if (!this.sheet) return [[]]
+  getSheetValues(): Array<string | number | Date>[] {
+    if (!this.sheet) return [[]];
     const lastRow = this.sheet.getLastRow() + 1;
     const lastColumn = this.sheet.getLastColumn();
-    const values: Array<string | number | Date>[]  = this.sheet
+    const values: Array<string | number | Date>[] = this.sheet
       .getRange(this.headerRow, 1, lastRow - this.headerRow, lastColumn)
       .getValues();
     return values;
@@ -180,7 +184,7 @@ class SpreadsheetManager {
    * @param bool valuesOnly = when true, function returns 1d array. When false, 2d array
    * @return array of data from sheet
    */
-  getValuesInColumn(headerName : string, valuesOnly = false) {
+  getValuesInColumn(headerName: string, valuesOnly = false) {
     const { values, rowHeaders } = this;
     if (rowHeaders.hasOwnProperty(headerName)) {
       const columnIndex = rowHeaders[headerName];
@@ -198,8 +202,11 @@ class SpreadsheetManager {
    * @desc paste formatted column into sheet by header name
    * @param string  headerName
    */
-  pasteValuesToColumn(headerName : string, columnArray: Array<string | number | Date>[]) {
-    if (!this.sheet) return
+  pasteValuesToColumn(
+    headerName: string,
+    columnArray: Array<string | number | Date>[]
+  ) {
+    if (!this.sheet) return;
     const { sheet, rowHeaders } = this;
     if (rowHeaders.hasOwnProperty(headerName)) {
       const columnIndex = rowHeaders[headerName];
@@ -221,17 +228,16 @@ class SpreadsheetManager {
    * @desc updates sheet with values from this.values;
    */
   updateAllValues() {
-    if (!this.sheet) return
+    if (!this.sheet) return;
     const { values, sheet } = this;
     sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
     SpreadsheetApp.flush();
   }
 }
 
-
 interface _Row {
-  values: Array<string | number | Date>
-  headers:SpreadsheetManagerTypes.RowHeaders
+  values: Array<string | number | Date>;
+  headers: SpreadsheetManagerTypes.RowHeaders;
 }
 class _Row {
   /**
@@ -240,14 +246,17 @@ class _Row {
    * @param object headers
    * @memberof _Row
    */
-  constructor(row: Array<string |number | Date>, headers: SpreadsheetManagerTypes.RowHeaders) {
+  constructor(
+    row: Array<string | number | Date>,
+    headers: SpreadsheetManagerTypes.RowHeaders
+  ) {
     this.values = row;
     this.headers = headers;
   }
 
   createObject() {
     const { values, headers } = this;
-    const obj : {[key:string]:any} = {};
+    const obj: { [key: string]: any } = {};
     for (let header in headers) {
       const index = headers[header];
       obj[header] = values[index];
