@@ -6,6 +6,7 @@
 namespace SpreadsheetManagerTypes {
   export interface Options {
     headerRow: number;
+    lastColumn: number;
   }
   export interface RowHeaders {
     [key: string]: number;
@@ -19,6 +20,7 @@ interface SpreadsheetManager {
   values: Array<string | number | Date>[];
   rowHeaders: SpreadsheetManagerTypes.RowHeaders;
   headerRow: number;
+  lastColumn: number;
 }
 
 class SpreadsheetManager {
@@ -28,9 +30,14 @@ class SpreadsheetManager {
     options?: SpreadsheetManagerTypes.Options
   ) {
     const headerRow: number = options ? options.headerRow : 1;
+
     this.headerRow = headerRow;
     this.wb = wb;
     this.sheet = this.wb.getSheetByName(sheetName);
+    const lastColumn: number = options
+      ? options.lastColumn
+      : (this.sheet?.getLastColumn() as number);
+    this.lastColumn = lastColumn;
     if (!this.sheet) return;
     this.values = this.getSheetValues();
     this.rowHeaders = this.getRowHeaders(this.values[0]);
@@ -55,18 +62,16 @@ class SpreadsheetManager {
    * each attribute of each object must be equivalent to an attribute in rowheaders
    * @memberof SpreadsheetManager
    */
-  addNewRowsFromObjects(objects: { [key: string]: any }) {
+  addNewRowsFromObjects(objects = []) {
     const { rowHeaders } = this;
-    const newRows = objects.map(
-      (obj: { [key: string]: string | number | Date }) => {
-        const newRow: Array<string | number | Date> = [];
-        for (let header in rowHeaders) {
-          const colIndex: number = rowHeaders[header];
-          newRow[colIndex] = obj[header] || "";
-        }
-        return newRow;
+    const newRows = objects.map((obj) => {
+      const newRow: Array<string | number | Date> = [];
+      for (let header in rowHeaders) {
+        const colIndex: number = rowHeaders[header];
+        newRow[colIndex] = obj[header] || "";
       }
-    );
+      return newRow;
+    });
     this.addNewRows(newRows);
   }
 
@@ -122,13 +127,23 @@ class SpreadsheetManager {
   forEachRow(callback: Function, options?: { bottomUp?: boolean }) {
     if (options?.bottomUp) {
       for (let i = this.values.length - 1; i > 0; i--) {
-        const row = new _Row(this.values[i], this.rowHeaders);
+        const row = new _Row(
+          this.values[i],
+          this.rowHeaders,
+          this,
+          i + this.headerRow
+        );
         const val = callback(row, i);
         if (val) return val;
       }
     } else {
       for (let i = 1; i < this.values.length; i++) {
-        const row = new _Row(this.values[i], this.rowHeaders);
+        const row = new _Row(
+          this.values[i],
+          this.rowHeaders,
+          this,
+          i + this.headerRow
+        );
         const val = callback(row, i);
         if (val) return val;
       }
@@ -172,7 +187,7 @@ class SpreadsheetManager {
   getSheetValues(): Array<string | number | Date>[] {
     if (!this.sheet) return [[]];
     const lastRow = this.sheet.getLastRow() + 1;
-    const lastColumn = this.sheet.getLastColumn();
+    const lastColumn = this.lastColumn;
     const values: Array<string | number | Date>[] = this.sheet
       .getRange(this.headerRow, 1, lastRow - this.headerRow, lastColumn)
       .getValues();
@@ -236,8 +251,10 @@ class SpreadsheetManager {
 }
 
 interface _Row {
+  _rowIndex: number;
   values: Array<string | number | Date>;
   headers: SpreadsheetManagerTypes.RowHeaders;
+  parent: SpreadsheetManager;
 }
 class _Row {
   /**
@@ -248,10 +265,14 @@ class _Row {
    */
   constructor(
     row: Array<string | number | Date>,
-    headers: SpreadsheetManagerTypes.RowHeaders
+    headers: SpreadsheetManagerTypes.RowHeaders,
+    parent: SpreadsheetManager,
+    rowIndex: number
   ) {
+    this._rowIndex = rowIndex;
     this.values = row;
     this.headers = headers;
+    this.parent = parent;
   }
 
   createObject() {
@@ -264,18 +285,27 @@ class _Row {
     return obj;
   }
 
-  col(headerName: string, value?: any) {
+  col(headerName: string, value?: any): string | number | Date {
     const colIndex = this.headers[headerName];
     try {
       if (value) {
         this.values[colIndex] = value;
-        return;
+        return value;
       } else {
         return this.values[colIndex];
       }
     } catch (err) {
       Logger.log(`${headerName} isn't a column`, err);
+      return "";
     }
+    return "";
+  }
+
+  update() {
+    const { parent } = this;
+    parent.sheet
+      ?.getRange(this._rowIndex, 1, 1, this.values.length)
+      .setValues([this.values]);
   }
 }
 
