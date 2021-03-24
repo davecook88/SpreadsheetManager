@@ -180,6 +180,15 @@ class SpreadsheetManager {
     }
     return obj;
   }
+    
+  getRowsAsObjects() {
+    const objects: any[] = [];
+    this.forEachRow((row: _Row) => {
+      const obj = row.createObject();
+      objects.push(obj);
+    });
+    return objects;
+  }
   /**
    * @desc sets values attribute for object
    * @return array of data from sheet
