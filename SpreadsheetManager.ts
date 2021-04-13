@@ -62,7 +62,7 @@ class SpreadsheetManager {
    * each attribute of each object must be equivalent to an attribute in rowheaders
    * @memberof SpreadsheetManager
    */
-  addNewRowsFromObjects(objects) {
+  addNewRowsFromObjects(objects: {[key:string]:number|string|Date|undefined}[]) {
     const { rowHeaders } = this;
     const newRows = objects.map((obj) => {
       const newRow: Array<string | number | Date> = [];
@@ -180,7 +180,7 @@ class SpreadsheetManager {
     }
     return obj;
   }
-    
+
   getRowsAsObjects() {
     const objects: any[] = [];
     this.forEachRow((row: _Row) => {
