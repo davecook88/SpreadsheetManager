@@ -23,6 +23,12 @@ interface SpreadsheetManager {
   lastColumn: number;
 }
 
+type SpreadsheetManagerGenericRowValue = string | number | Date;
+
+interface SpreadsheetManagerGenericRowObject {
+  [key: string]: SpreadsheetManagerGenericRowValue;
+}
+
 class SpreadsheetManager {
   constructor(
     wb: GoogleAppsScript.Spreadsheet.Spreadsheet,
@@ -62,7 +68,7 @@ class SpreadsheetManager {
    * each attribute of each object must be equivalent to an attribute in rowheaders
    * @memberof SpreadsheetManager
    */
-  addNewRowsFromObjects(objects: {[key:string]:number|string|Date|undefined}[]) {
+  addNewRowsFromObjects(objects: SpreadsheetManagerGenericRowObject[]) {
     const { rowHeaders } = this;
     const newRows = objects.map((obj) => {
       const newRow: Array<string | number | Date> = [];
