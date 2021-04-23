@@ -23,7 +23,7 @@ interface SpreadsheetManager {
   lastColumn: number;
 }
 
-type SpreadsheetManagerGenericRowValue = string | number | Date;
+type SpreadsheetManagerGenericRowValue = string | number | Date | undefined;
 
 interface SpreadsheetManagerGenericRowObject {
   [key: string]: SpreadsheetManagerGenericRowValue;
