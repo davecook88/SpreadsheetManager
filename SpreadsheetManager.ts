@@ -11,22 +11,22 @@ namespace SpreadsheetManagerTypes {
   export interface RowHeaders {
     [key: string]: number;
   }
+
+  export type GenericRowValue = string | number | Date | undefined;
+
+  export interface GenericRowObject {
+    [key: string]: SpreadsheetManagerTypes.GenericRowValue;
+  }
 }
 
 interface SpreadsheetManager {
-  row: Array<string | number | Date>;
+  row: SpreadsheetManagerTypes.GenericRowValue[];
   wb: GoogleAppsScript.Spreadsheet.Spreadsheet;
   sheet: GoogleAppsScript.Spreadsheet.Sheet | null;
-  values: Array<string | number | Date>[];
+  values: SpreadsheetManagerTypes.GenericRowValue[][];
   rowHeaders: SpreadsheetManagerTypes.RowHeaders;
   headerRow: number;
   lastColumn: number;
-}
-
-type SpreadsheetManagerGenericRowValue = string | number | Date | undefined;
-
-interface SpreadsheetManagerGenericRowObject {
-  [key: string]: SpreadsheetManagerGenericRowValue;
 }
 
 class SpreadsheetManager {
@@ -68,7 +68,7 @@ class SpreadsheetManager {
    * each attribute of each object must be equivalent to an attribute in rowheaders
    * @memberof SpreadsheetManager
    */
-  addNewRowsFromObjects(objects: SpreadsheetManagerGenericRowObject[]) {
+  addNewRowsFromObjects(objects: SpreadsheetManagerTypes.GenericRowObject[]) {
     const { rowHeaders } = this;
     const newRows = objects.map((obj) => {
       const newRow: Array<string | number | Date> = [];
@@ -174,7 +174,7 @@ class SpreadsheetManager {
    * @return obj - {header:int,header:int,...}
    */
   getRowHeaders(
-    topRow: Array<string | number | Date>
+    topRow: SpreadsheetManagerTypes.GenericRowValue[]
   ): SpreadsheetManagerTypes.RowHeaders {
     const obj: SpreadsheetManagerTypes.RowHeaders = {};
     for (let c = 0; c < topRow.length; c++) {
@@ -199,11 +199,11 @@ class SpreadsheetManager {
    * @desc sets values attribute for object
    * @return array of data from sheet
    */
-  getSheetValues(): Array<string | number | Date>[] {
+  getSheetValues(): Array<SpreadsheetManagerTypes.GenericRowValue>[] {
     if (!this.sheet) return [[]];
     const lastRow = this.sheet.getLastRow() + 1;
     const lastColumn = this.lastColumn;
-    const values: Array<string | number | Date>[] = this.sheet
+    const values: Array<SpreadsheetManagerTypes.GenericRowValue>[] = this.sheet
       .getRange(this.headerRow, 1, lastRow - this.headerRow, lastColumn)
       .getValues();
     return values;
@@ -267,7 +267,7 @@ class SpreadsheetManager {
 
 interface _Row {
   _rowIndex: number;
-  values: Array<string | number | Date>;
+  values: SpreadsheetManagerTypes.GenericRowValue[];
   headers: SpreadsheetManagerTypes.RowHeaders;
   parent: SpreadsheetManager;
 }
@@ -279,7 +279,7 @@ class _Row {
    * @memberof _Row
    */
   constructor(
-    row: Array<string | number | Date>,
+    row: SpreadsheetManagerTypes.GenericRowValue[],
     headers: SpreadsheetManagerTypes.RowHeaders,
     parent: SpreadsheetManager,
     rowIndex: number
@@ -300,7 +300,10 @@ class _Row {
     return obj;
   }
 
-  col(headerName: string, value?: any): string | number | Date {
+  col(
+    headerName: string,
+    value?: any
+  ): SpreadsheetManagerTypes.GenericRowValue {
     const colIndex = this.headers[headerName];
     try {
       if (value) {
