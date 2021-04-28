@@ -5,8 +5,8 @@
 
 namespace SpreadsheetManagerTypes {
   export interface Options {
-    headerRow: number;
-    lastColumn: number;
+    headerRow?: number;
+    lastColumn?: number;
   }
   export interface RowHeaders {
     [key: string]: number;
@@ -35,14 +35,13 @@ class SpreadsheetManager {
     sheetName: string,
     options?: SpreadsheetManagerTypes.Options
   ) {
-    const headerRow: number = options ? options.headerRow : 1;
+    const headerRow: number = options?.headerRow || 1;
 
     this.headerRow = headerRow;
     this.wb = wb;
     this.sheet = this.wb.getSheetByName(sheetName);
-    const lastColumn: number = options
-      ? options.lastColumn
-      : (this.sheet?.getLastColumn() as number);
+    const lastColumn: number =
+      options?.lastColumn || (this.sheet?.getLastColumn() as number);
     this.lastColumn = lastColumn;
     if (!this.sheet) return;
     this.values = this.getSheetValues();
