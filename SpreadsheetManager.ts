@@ -54,7 +54,7 @@ class SpreadsheetManager {
    * @param variable[][] or variable[] rows
    * @memberof SpreadsheetManager
    */
-  addNewRows(rows: Array<string | number | Date>[]) {
+  addNewRows(rows: Array<SpreadsheetManagerTypes.GenericRowValue>[]) {
     const { sheet } = this;
     if (!sheet) return;
     const lastRow = sheet.getLastRow();
@@ -70,15 +70,20 @@ class SpreadsheetManager {
   addNewRowsFromObjects(objects: SpreadsheetManagerTypes.GenericRowObject[]) {
     const { rowHeaders } = this;
     const newRows = objects.map((obj) => {
-      const newRow: Array<string | number | Date> = [];
+      const newRow: Array<SpreadsheetManagerTypes.GenericRowValue> = [];
       for (let header in rowHeaders) {
         const colIndex: number = rowHeaders[header];
-        newRow[colIndex] = obj[header] || "";
+        if (obj[header] === undefined) {
+          newRow[colIndex] = "";
+        } else {
+          newRow[colIndex] = obj[header];
+        }
       }
       return newRow;
     });
     this.addNewRows(newRows);
   }
+
 
   /**
    *
