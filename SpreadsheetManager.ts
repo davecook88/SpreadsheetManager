@@ -232,6 +232,24 @@ class SpreadsheetManager {
       return false;
     }
   }
+      
+  pasteFormulasToColumn(headerName: string, formula: string) {
+    const { sheet, rowHeaders, values } = this;
+    const columnIndex = rowHeaders[headerName];
+    const firstRow = this.headerRow + 1;
+    const rowsLength = values.length - 1;
+    if (rowsLength > 0) {
+      const pasteRange = sheet?.getRange(
+        firstRow,
+        columnIndex + 1,
+        rowsLength,
+        1
+      );
+
+      pasteRange?.setFormula(formula);
+      SpreadsheetApp.flush();
+    }
+  }
   /**
    * @desc paste formatted column into sheet by header name
    * @param string  headerName
