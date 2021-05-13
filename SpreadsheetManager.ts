@@ -5,7 +5,8 @@
 
 namespace SpreadsheetManagerTypes {
   export interface Options {
-    headerRow?: number;
+    headerRow: number;
+    firstColumn?: number;
     lastColumn?: number;
   }
   export interface RowHeaders {
@@ -26,6 +27,7 @@ interface SpreadsheetManager {
   values: SpreadsheetManagerTypes.GenericRowValue[][];
   rowHeaders: SpreadsheetManagerTypes.RowHeaders;
   headerRow: number;
+  firstColumn: number;
   lastColumn: number;
 }
 
@@ -35,14 +37,14 @@ class SpreadsheetManager {
     sheetName: string,
     options?: SpreadsheetManagerTypes.Options
   ) {
-    const headerRow: number = options?.headerRow || 1;
+    const headerRow: number = options ? options.headerRow : 1;
 
     this.headerRow = headerRow;
     this.wb = wb;
     this.sheet = this.wb.getSheetByName(sheetName);
-    const lastColumn: number =
+    this.firstColumn = options?.firstColumn || 1;
+    this.lastColumn =
       options?.lastColumn || (this.sheet?.getLastColumn() as number);
-    this.lastColumn = lastColumn;
     if (!this.sheet) return;
     this.values = this.getSheetValues();
     this.rowHeaders = this.getRowHeaders(this.values[0]);
@@ -83,7 +85,6 @@ class SpreadsheetManager {
     });
     this.addNewRows(newRows);
   }
-
 
   /**
    *
@@ -206,9 +207,13 @@ class SpreadsheetManager {
   getSheetValues(): Array<SpreadsheetManagerTypes.GenericRowValue>[] {
     if (!this.sheet) return [[]];
     const lastRow = this.sheet.getLastRow() + 1;
-    const lastColumn = this.lastColumn;
     const values: Array<SpreadsheetManagerTypes.GenericRowValue>[] = this.sheet
-      .getRange(this.headerRow, 1, lastRow - this.headerRow, lastColumn)
+      .getRange(
+        this.headerRow,
+        this.firstColumn,
+        lastRow - this.headerRow,
+        this.lastColumn
+      )
       .getValues();
     return values;
   }
@@ -232,24 +237,6 @@ class SpreadsheetManager {
       return false;
     }
   }
-      
-  pasteFormulasToColumn(headerName: string, formula: string) {
-    const { sheet, rowHeaders, values } = this;
-    const columnIndex = rowHeaders[headerName];
-    const firstRow = this.headerRow + 1;
-    const rowsLength = values.length - 1;
-    if (rowsLength > 0) {
-      const pasteRange = sheet?.getRange(
-        firstRow,
-        columnIndex + 1,
-        rowsLength,
-        1
-      );
-
-      pasteRange?.setFormula(formula);
-      SpreadsheetApp.flush();
-    }
-  }
   /**
    * @desc paste formatted column into sheet by header name
    * @param string  headerName
@@ -264,7 +251,7 @@ class SpreadsheetManager {
       const columnIndex = rowHeaders[headerName];
 
       const pasteRange = sheet.getRange(
-        2,
+        this.headerRow + 1,
         columnIndex + 1,
         columnArray.length,
         1
@@ -282,7 +269,14 @@ class SpreadsheetManager {
   updateAllValues() {
     if (!this.sheet) return;
     const { values, sheet } = this;
-    sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
+    sheet
+      .getRange(
+        this.headerRow,
+        this.firstColumn,
+        values.length,
+        values[0].length
+      )
+      .setValues(values);
     SpreadsheetApp.flush();
   }
 }
