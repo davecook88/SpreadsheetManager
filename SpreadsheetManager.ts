@@ -112,6 +112,7 @@ class SpreadsheetManager {
     sheet
       .getRange(headerRow + 1, 1, sheet.getLastRow(), sheet.getLastColumn())
       .clearContent();
+    this.values = this.values.slice(0, 1)
     SpreadsheetApp.flush();
   }
 
