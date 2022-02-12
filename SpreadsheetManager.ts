@@ -13,9 +13,10 @@ namespace SpreadsheetManagerTypes {
     [key: string]: number;
   }
 
-  export type GenericRowValue = string | number | Date | undefined;
+  export type GenericRowValue = string | number | Date | boolean | undefined;
 
   export interface GenericRowObject {
+    _rowIndex: number;
     [key: string]: SpreadsheetManagerTypes.GenericRowValue;
   }
 }
@@ -95,7 +96,9 @@ class SpreadsheetManager {
    */
   createObjectFromRow(row: _Row) {
     const { rowHeaders } = this;
-    const obj: { [key: string]: string | number | Date | undefined } = {};
+    const obj: SpreadsheetManagerTypes.GenericRowObject = {
+      _rowIndex: row._rowIndex,
+    };
     for (let key in rowHeaders) {
       try {
         obj[key] = row.col(key);
@@ -112,7 +115,7 @@ class SpreadsheetManager {
     sheet
       .getRange(headerRow + 1, 1, sheet.getLastRow(), sheet.getLastColumn())
       .clearContent();
-    this.values = this.values.slice(0, 1)
+    this.values = this.values.slice(0, 1);
     SpreadsheetApp.flush();
   }
 
@@ -127,6 +130,19 @@ class SpreadsheetManager {
     sheet.getDataRange().clearContent();
     sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
     SpreadsheetApp.flush();
+  }
+
+  createRowFromObject(obj: SpreadsheetManagerTypes.GenericRowObject) {
+    const newRow: Array<SpreadsheetManagerTypes.GenericRowValue> = [];
+    for (let header in this.rowHeaders) {
+      const colIndex: number = this.rowHeaders[header];
+      if (obj[header] === undefined) {
+        newRow[colIndex] = "";
+      } else {
+        newRow[colIndex] = obj[header];
+      }
+    }
+    return newRow;
   }
 
   /**
@@ -280,6 +296,13 @@ class SpreadsheetManager {
       .setValues(values);
     SpreadsheetApp.flush();
   }
+
+  updateOneRow(row: SpreadsheetManagerTypes.GenericRowObject) {
+    const newRow = this.createRowFromObject(row);
+    this.sheet
+      ?.getRange(row._rowIndex, this.firstColumn, 1, newRow.length)
+      .setValues([newRow]);
+  }
 }
 
 interface _Row {
@@ -313,6 +336,7 @@ class _Row {
     for (let header in headers) {
       const index = headers[header];
       obj[header] = values[index];
+      obj._rowIndex = this._rowIndex;
     }
     return obj;
   }
@@ -343,5 +367,3 @@ class _Row {
       .setValues([this.values]);
   }
 }
-
-// module.exports = SpreadsheetManager;
